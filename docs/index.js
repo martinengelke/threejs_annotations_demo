@@ -41,10 +41,6 @@ const annotation = document.querySelector(".annotation");
 if (!annotation) {
     throw new Error('Missing required annotation element: ".annotation"');
 }
-const raycaster = new THREE.Raycaster();
-const cameraToSprite = new THREE.Vector3();
-const cameraWorldPosition = new THREE.Vector3();
-const spriteWorldPosition = new THREE.Vector3();
 
 init();
 animate();
@@ -160,18 +156,13 @@ function render() {
 }
 
 function updateAnnotationOpacity() {
-    camera.getWorldPosition(cameraWorldPosition);
-    sprite.getWorldPosition(spriteWorldPosition);
-    cameraToSprite.subVectors(spriteWorldPosition, cameraWorldPosition);
-
-    const spriteDistance = cameraToSprite.length();
-    raycaster.set(cameraWorldPosition, cameraToSprite.normalize());
-    const intersections = raycaster.intersectObject(mesh, false);
-    const firstIntersection = Array.isArray(intersections) ? intersections[0] : null;
-    spriteBehindObject = Boolean(
-        firstIntersection && typeof firstIntersection.distance === "number" && firstIntersection.distance < spriteDistance
-    );
+    const meshDistance = camera.position.distanceTo(mesh.position);
+    const spriteDistance = camera.position.distanceTo(sprite.position);
+    spriteBehindObject = spriteDistance > meshDistance;
     sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
+
+    // Use the CSS pseudo-element as the visible marker (tutorial behavior).
+    sprite.material.opacity = 0;
 }
 
 function updateScreenPosition() {
