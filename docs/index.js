@@ -167,9 +167,10 @@ function updateAnnotationOpacity() {
     const spriteDistance = cameraToSprite.length();
     raycaster.set(cameraWorldPosition, cameraToSprite.normalize());
     const intersections = raycaster.intersectObject(mesh, false);
-    const occluded = intersections.length > 0 && intersections[0].distance < spriteDistance;
-
-    spriteBehindObject = occluded;
+    const firstIntersection = Array.isArray(intersections) ? intersections[0] : null;
+    spriteBehindObject = Boolean(
+        firstIntersection && typeof firstIntersection.distance === "number" && firstIntersection.distance < spriteDistance
+    );
     sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
 }
 
